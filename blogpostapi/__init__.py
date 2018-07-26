@@ -1,6 +1,7 @@
+import json
 import os
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, Response
 from flask_sqlalchemy import SQLAlchemy
 
 blogpostapi_dir = os.path.abspath(os.path.dirname(__file__))
@@ -30,6 +31,17 @@ class Post(db.Model):
         return f'Post "{self.title}" (id: {self.post_id})'
 
 
+def build_response(resp, status_code):
+    """
+    Helper function to build JSON responses (success and error).
+    """
+    return Response(
+        mimetype="application/json",
+        response=json.dumps(resp),
+        status=status_code
+    )
+
+
 @app.route('/sanity')
 def sanity():
     return 'Sanity still intact.'
@@ -49,3 +61,28 @@ def posts():
     resp = jsonify(obj_array)
     resp.status_code = 200
     return resp
+
+
+@app.route('/post', methods=['POST'])
+def post():
+    req_data = request.get_json()
+    if 'title' in req_data:
+        title = str(req_data['title'])
+    else:
+        error_msg = {
+            'error': 'Please provide the title of the post!'
+        }
+        return build_response(error_msg, 400)
+    if 'body' in req_data:
+        body = str(req_data['body'])
+    else:
+        error_msg = {
+            'error': 'Please provide the body of the post!'
+        }
+        return build_response(error_msg, 400)
+    post = Post(title=title, body=body)
+    db.session.add(post)
+    db.session.commit()
+    last_post = Post.query.order_by(Post.post_id)[-1]
+    msg = {'title': title, 'body': body, 'post_id': last_post.post_id}
+    return build_response(msg, 201)
