@@ -30,10 +30,9 @@ def test_check_sanity(client):
 def test_get_all_blogposts(client):
     title = ['How to yodel', 'Why is the sky blue']
     body = ['Practice a lot, grasshopper!', 'It only appears blue.']
-    post = Post(title=title[0], body=body[0])
-    db.session.add(post)
-    post = Post(title=title[1], body=body[1])
-    db.session.add(post)
+    for idx, t in enumerate(title):
+        post = Post(title=t, body=body[idx])
+        db.session.add(post)
     db.session.commit()
     resp = client.get('/posts', content_type='application/json')
     assert resp.status_code == 200
