@@ -94,3 +94,42 @@ def test_create_blogpost_missing_body(client):
     resp_data = resp.get_json()
     assert 'error' in resp_data
     assert resp_data['error'] == 'Please provide the body of the post!'
+
+
+def test_delete_blogpost(client):
+    title = ['How to yodel', 'Why is the sky blue']
+    body = ['Practice a lot, grasshopper!', 'It only appears blue.']
+    for idx, t in enumerate(title):
+        post = Post(title=t, body=body[idx])
+        db.session.add(post)
+    db.session.commit()
+    resp = client.delete('/delete_post?id=1', content_type='application/json')
+    assert resp.status_code == 204
+
+
+def test_delete_blogpost_missing_id(client):
+    title = ['How to yodel', 'Why is the sky blue']
+    body = ['Practice a lot, grasshopper!', 'It only appears blue.']
+    for idx, t in enumerate(title):
+        post = Post(title=t, body=body[idx])
+        db.session.add(post)
+    db.session.commit()
+    resp = client.delete('/delete_post', content_type='application/json')
+    assert resp.status_code == 400
+    resp_data = resp.get_json()
+    assert 'error' in resp_data
+    assert 'Please provide the pk of the post to delete' in resp_data['error']
+
+
+def test_delete_non_existent_blogpost(client):
+    title = ['How to yodel', 'Why is the sky blue']
+    body = ['Practice a lot, grasshopper!', 'It only appears blue.']
+    for idx, t in enumerate(title):
+        post = Post(title=t, body=body[idx])
+        db.session.add(post)
+    db.session.commit()
+    resp = client.delete('/delete_post?id=5', content_type='application/json')
+    assert resp.status_code == 404
+    resp_data = resp.get_json()
+    assert 'error' in resp_data
+    assert resp_data['error'] == 'There is no blog post with id: 5 in the DB.'

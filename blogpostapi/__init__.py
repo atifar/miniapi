@@ -86,3 +86,25 @@ def post():
     last_post = Post.query.order_by(Post.post_id)[-1]
     msg = {'title': title, 'body': body, 'post_id': last_post.post_id}
     return build_response(msg, 201)
+
+
+@app.route('/delete_post', methods=['DELETE'])
+def delete_post():
+    if 'id' in request.args:
+        id = request.args['id']
+    else:
+        error_msg = {
+            'error': 'Please provide the pk of the post to delete '
+                     'as the id query parameter!'
+        }
+        return build_response(error_msg, 400)
+    post = Post.query.filter_by(post_id=id).first()
+    if post:
+        db.session.delete(post)
+        db.session.commit()
+        return build_response('', 204)
+    else:
+        error_msg = {
+            'error': f'There is no blog post with id: {id} in the DB.'
+        }
+        return build_response(error_msg, 404)
