@@ -21,6 +21,12 @@ def client():
     os.close(db_fd)
 
 
+def test_check_sanity(client):
+    resp = client.get('/sanity')
+    assert resp.status_code == 200
+    assert 'Sanity still intact.' == resp.data.decode()
+
+
 def test_get_all_blogposts(client):
     title = ['How to yodel', 'Why is the sky blue']
     body = ['Practice a lot, grasshopper!', 'It only appears blue.']
