@@ -96,6 +96,21 @@ def test_create_blogpost_missing_body(client):
     assert resp_data['error'] == 'Please provide the body of the post!'
 
 
+def test_create_blogpost_incorrect_content_type(client):
+    resp = client.post(
+        '/post',
+        json={
+            'title': 'A title',
+            'body': 'Just some body text.'
+        },
+        content_type='application/x-www-form-urlencoded'
+    )
+    assert resp.status_code == 400
+    resp_data = resp.get_json()
+    assert 'error' in resp_data
+    assert resp_data['error'] == 'Please use application/json content type!'
+
+
 def test_delete_blogpost(client):
     title = ['How to yodel', 'Why is the sky blue']
     body = ['Practice a lot, grasshopper!', 'It only appears blue.']

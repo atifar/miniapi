@@ -66,6 +66,11 @@ def posts():
 @app.route('/post', methods=['POST'])
 def post():
     req_data = request.get_json()
+    if not req_data:
+        error_msg = {
+            'error': 'Please use application/json content type!'
+        }
+        return build_response(error_msg, 400)
     if 'title' in req_data:
         title = str(req_data['title'])
     else:
