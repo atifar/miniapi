@@ -6,15 +6,15 @@ RUN adduser -D miniapi
 
 WORKDIR /home/miniapi
 
-COPY Pipfile Pipfile.lock .env ./
+COPY blogpostapi blogpostapi
+COPY Pipfile Pipfile.lock .env boot.sh ./
 
+RUN chmod +x boot.sh
 RUN pip install pipenv
 RUN pipenv install --system
-
-COPY blogpostapi blogpostapi
 
 RUN chown -R miniapi:miniapi ./
 USER miniapi
 
 EXPOSE 5000
-CMD ["gunicorn", "-b", ":5000", "blogpostapi:app"]
+CMD ["./boot.sh"]

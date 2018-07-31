@@ -1,3 +1,2 @@
 #!/bin/sh
-source venv/bin/activate
-exec gunicorn -b :5000 --access-logfile - --error-logfile - blogpostapi:app
+exec gunicorn -b :${PORT:-5000} --access-logfile - --error-logfile - blogpostapi:app
